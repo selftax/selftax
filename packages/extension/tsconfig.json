@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@selftax/core": ["../tax-core/src"],
+      "@selftax/core/*": ["../tax-core/src/*"],
+      "@selftax/web": ["../web/src"],
+      "@selftax/web/*": ["../web/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "popup.ts", "../web/src/**/*.ts", "../web/src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "SelfTax — Free Tax Preparation",
+  "version": "0.1.0",
+  "description": "Prepare and file your taxes for free. Your data never leaves your device.",
+  "permissions": ["activeTab", "storage", "tabs"],
+  "host_permissions": ["http://localhost:3742/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.freefilefillableforms.com/*", "*://freefilefillableforms.com/*"],
+      "js": ["content/freeFileAutoFill.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["pdf.worker.min.mjs"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'; worker-src 'self'"
+  }
+}

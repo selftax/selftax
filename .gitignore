@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+*.tsbuildinfo
+coverage/
+.DS_Store
+.claude/dirty-files
+.claude/worktrees/
+.selftax-profile.json
+*.traineddata
+
+# Dev artifacts
+popup-screenshot.png
+test-results/

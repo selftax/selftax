@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@selftax/core": ["packages/tax-core/src"],
+      "@selftax/core/*": ["packages/tax-core/src/*"],
+      "@selftax/web": ["packages/web/src"],
+      "@selftax/web/*": ["packages/web/src/*"],
+      "@selftax/mcp": ["packages/mcp/src"],
+      "@selftax/mcp/*": ["packages/mcp/src/*"],
+      "@selftax/extension": ["packages/extension/src"],
+      "@selftax/extension/*": ["packages/extension/src/*"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
+    "__tests__/**/*.ts",
+    "__tests__/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SelfTax</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        width: 400px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+      }
+      .header {
+        background: #1e40af;
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .header h1 { font-size: 15px; font-weight: 600; }
+      .header .badge {
+        font-size: 10px;
+        background: rgba(255,255,255,0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .header .spacer { flex: 1; }
+      .header .lock-button {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.8);
+        font-size: 13px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .header .lock-button:hover { background: rgba(255,255,255,0.15); color: white; }
+
+      .body { padding: 12px 16px; }
+
+      /* Lock / password screen */
+      .lock-screen {
+        text-align: center;
+        padding: 24px 16px;
+      }
+      .lock-screen .lock-icon { font-size: 32px; margin-bottom: 8px; }
+      .lock-screen h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+      .lock-screen input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        outline: none;
+      }
+      .lock-screen input[type="password"]:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+      }
+      .lock-screen .error-msg {
+        color: #dc2626;
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+      .lock-screen .hint {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 12px;
+      }
+
+      /* Saved return card */
+      .return-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .return-card .name { font-size: 14px; font-weight: 600; }
+      .return-card .detail { font-size: 12px; color: #64748b; margin-top: 2px; }
+      .return-card .refund {
+        font-size: 13px;
+        font-weight: 600;
+        color: #16a34a;
+        margin-top: 4px;
+      }
+      .return-card .owed {
+        font-size: 13px;
+        font-weight: 600;
+        color: #dc2626;
+        margin-top: 4px;
+      }
+
+      /* Current form detection */
+      .form-detected {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #166534;
+      }
+
+      /* Buttons */
+      .btn-primary {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .btn-primary:hover { background: #1d4ed8; }
+      .btn-primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+      .btn-autofill { /* alias for backward compat in content scripts */
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .btn-autofill:hover { background: #1d4ed8; }
+      .btn-autofill:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        width: 100%;
+      }
+      .btn-secondary:hover { background: #f1f5f9; }
+
+      /* Status messages */
+      .status {
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      .status.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+      .status.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+      .status.info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+      .no-data {
+        text-align: center;
+        padding: 20px 0;
+        color: #94a3b8;
+        font-size: 13px;
+      }
+
+      /* Section headers */
+      .section-header {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 12px 0 6px;
+      }
+
+      /* Upload area */
+      .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 10px;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .upload-area:hover { border-color: #2563eb; background: #eff6ff; }
+      .upload-area.dragover { border-color: #2563eb; background: #eff6ff; }
+      .upload-area .upload-label {
+        font-size: 13px;
+        color: #475569;
+      }
+      .upload-area .upload-hint {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 4px;
+      }
+      .upload-area input[type="file"] { display: none; }
+
+      /* Document list */
+      .document-list { margin-bottom: 8px; }
+      .document-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 8px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+      .document-item .doc-name { font-weight: 500; flex: 1; }
+      .document-item .doc-type { color: #2563eb; font-size: 11px; }
+      .document-item .doc-processing { color: #f59e0b; font-size: 11px; }
+
+      /* Profile form */
+      .profile-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 6px;
+        align-items: center;
+      }
+      .profile-row label {
+        font-size: 12px;
+        color: #64748b;
+        min-width: 80px;
+      }
+      .profile-row select,
+      .profile-row input {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      /* Field vault view */
+      .fields-toggle {
+        background: none;
+        border: none;
+        color: #2563eb;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 4px 0;
+        width: 100%;
+        text-align: center;
+        margin-top: 6px;
+      }
+      .fields-toggle:hover { text-decoration: underline; }
+      .fields-section {
+        max-height: 360px;
+        overflow-y: auto;
+        margin-top: 8px;
+      }
+      .fields-form-group {
+        margin-bottom: 8px;
+      }
+      .fields-form-header {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 4px 0;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 2px;
+      }
+      .field-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 3px 0;
+        font-size: 12px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .field-row:last-child { border-bottom: none; }
+      .field-label { color: #475569; flex: 1; }
+      .field-value {
+        color: #1e293b;
+        font-weight: 500;
+        font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+        font-size: 11px;
+        text-align: right;
+        margin-left: 8px;
+      }
+      input.field-edit {
+        border: 1px solid transparent;
+        border-radius: 4px;
+        padding: 1px 4px;
+        background: transparent;
+        width: 120px;
+        outline: none;
+      }
+      input.field-edit:hover { border-color: #e2e8f0; background: #f8fafc; }
+      input.field-edit:focus { border-color: #2563eb; background: white; }
+      .field-count {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-left: 4px;
+      }
+
+      /* Settings */
+      .header .settings-button {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.8);
+        font-size: 15px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        line-height: 1;
+      }
+      .header .settings-button:hover { background: rgba(255,255,255,0.15); color: white; }
+      .mode-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .mode-option:hover { border-color: #2563eb; }
+      .mode-option.selected { border-color: #2563eb; background: #eff6ff; }
+      .mode-option.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .mode-option input[type="radio"] { margin-top: 2px; }
+      .mode-option .mode-label { font-size: 13px; font-weight: 600; }
+      .mode-option .mode-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
+      .mode-option .mode-badge {
+        font-size: 9px;
+        background: #f59e0b;
+        color: white;
+        padding: 1px 5px;
+        border-radius: 3px;
+        margin-left: 6px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header" id="header">
+      <h1>SelfTax</h1>
+      <span class="badge">FREE</span>
+      <span class="spacer"></span>
+      <button class="settings-button" id="settings-btn" title="Settings">&#9881;</button>
+    </div>
+    <div class="body" id="content">
+      <div class="no-data">Loading...</div>
+    </div>
+    <script type="module" src="pdfSetup.mjs"></script>
+    <script type="module" src="popupProcessing.js"></script>
+    <script src="popup.js" defer></script>
+  </body>
+</html>

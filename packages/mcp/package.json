@@ -1,0 +1,23 @@
+{
+  "name": "@selftax/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "serve": "tsx watch src/httpIndex.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
+    "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@selftax/core": "workspace:*",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.6.205",
+    "tesseract.js": "^7.0.0",
+    "xlsx": "^0.18.5",
+    "zod": "^4.0.0"
+  }
+}
